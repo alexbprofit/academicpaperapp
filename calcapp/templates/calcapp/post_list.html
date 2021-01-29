@@ -13,6 +13,8 @@
         <p>parameter b: {{ post.param2 }}</p>
         <p>parameter c: {{ post.param3 }}</p>
         <p>Accuracy: {{ post.epsilon }}</p>
+        <img src="/static/img/plot.png">
+             {{ top.main(f, post.param1, post.param2, post.param3, post.nums, post.eps)}}
     </div>
 {% endfor %}
     </body>
