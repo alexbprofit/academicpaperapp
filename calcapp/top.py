@@ -283,9 +283,10 @@ def main(f, a, b, c, num,eps):
     plt.plot(x, f(a, b, c, x))
     plt.plot(x, XAxis(0, 0, x))
     plt.plot(YAxis(0, 0, x), y)
-    plt.savefig("/static/img/plot,png")
+    plt.savefig("/static/img/plot.png")
     print(testroot1)
     print(testroot2)
+    return [testroot1, testroot2]
     # print(left)
     # print(right)
 
