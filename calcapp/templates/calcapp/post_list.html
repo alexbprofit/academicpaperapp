@@ -9,10 +9,8 @@
 
 {% for post in posts %}
     <div>
-        <p>parameter a: {{ post.param1 }}</p>
-        <p>parameter b: {{ post.param2 }}</p>
-        <p>parameter c: {{ post.param3 }}</p>
-        <p>Accuracy: {{ post.epsilon }}</p>
+        <p>root 1: {{ post.left }}</p>
+        <p>root 2: {{ post.right }}</p>
         <img src="/static/img/plot.png">
     </div>
 {% endfor %}

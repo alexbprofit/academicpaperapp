@@ -21,6 +21,3 @@ class Post(models.Model):
 
 class Images(models.Model):
     image = models.ImageField(upload_to="plot.png")
-
-@csrf_exempt
-def saveImage(request):

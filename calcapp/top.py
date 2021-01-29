@@ -278,12 +278,6 @@ def main(f, a, b, c, num,eps):
         print("Метод Стеффенсена.")
         testroot1 = steffencenMethod(left[0], left[1], eps, a, b, c)
         testroot2 = steffencenMethod(right[0], right[1], eps, a, b, c)
-    x = np.arange(-4, 4, 0.1)
-    y = np.arange(-32, 32, 0.8)
-    plt.plot(x, f(a, b, c, x))
-    plt.plot(x, XAxis(0, 0, x))
-    plt.plot(YAxis(0, 0, x), y)
-    plt.savefig("/static/img/plot.png")
     print(testroot1)
     print(testroot2)
     return [testroot1, testroot2]
