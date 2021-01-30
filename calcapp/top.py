@@ -1,4 +1,7 @@
+import matplotlib
+matplotlib.use("agg")
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import numpy as np
 import math
 import sys
@@ -35,7 +38,7 @@ def ddf(a):
 def decomp(a, b, c, p, q, eps):
     intervals = []
     i = p
-    t = 10 * eps
+    t = 10.0 * eps
     while i < q:
         if f(a, b, c, i) * f(a, b, c, i + t) < 0:
             t = t / 10
@@ -183,7 +186,7 @@ def extendNewtonMethod(l, r, eps, a, b, c):
     cond = True
     x0 = (l + r) / 2.0
     while cond and iterate < maxIteration:
-        x1 = newtonRaphson(x0, eps, a, b, c) - (
+        x1 = newtonRaphson(l,r, eps, a, b, c) - (
                     (ddf(a) * math.pow(f(a, b, c, x0), 2)) / (2 * math.pow(df(a, b, x0), 2)))
         if abs(x1 - x0) < eps:
             cond = False
@@ -199,7 +202,7 @@ def interpolationMethod(l, r, eps, a, b, c):
     maxIteration = 100
     cond = True
     while cond and iterate < maxIteration:
-        y1 = x2 - ((f(a, b, c, x2) * (x2 - x1)) / ((f(a, b, c, x2) - f(a, b, c, x1))))
+        y1 = x2 - ((f(a, b, c, x2) * (x2 - x1)) / (f(a, b, c, x2) - f(a, b, c, x1)))
         if abs(y1 - x2) < eps:
             cond = False
         x1 = x2
@@ -278,6 +281,13 @@ def main(f, a, b, c, num,eps):
         print("Метод Стеффенсена.")
         testroot1 = steffencenMethod(left[0], left[1], eps, a, b, c)
         testroot2 = steffencenMethod(right[0], right[1], eps, a, b, c)
+    x = np.arange(-4, 4, 0.1)
+    y = np.arange(-32, 32, 0.8)
+    fig = Figure()
+    plt.plot(x, f(a, b, c, x))
+    plt.plot(x, XAxis(0, 0, x))
+    plt.plot(YAxis(0, 0, x), y)
+    fig.savefig("static/img/plot.png")
     print(testroot1)
     print(testroot2)
     return [testroot1, testroot2]

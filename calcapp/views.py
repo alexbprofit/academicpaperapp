@@ -1,26 +1,39 @@
-import matplotlib as plt
-import mpld3
-from django.shortcuts import render
-import numpy as np
-
-from djangoapp.calcapp import top
-from djangoapp.calcapp.top import XAxis, YAxis
+from django.shortcuts import redirect, render, get_object_or_404
+from .forms import PostForm
 from .models import Post
+from . import top
+
+def post_new(request):
+    if request.method == "POST":
+        form = PostForm(request.POST)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.save()
+            return redirect('post_detail', pk=post.pk)
+    else:
+        form = PostForm()
+        return render(request, 'calcapp/post_edit.html', {'form': form})
+
+
+def post_edit(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            return redirect('post_detail', pk=post.pk)
+    else:
+        form = PostForm(instance=post)
+        return render(request, 'calcapp/post_edit.html', {'form': form})
+
+
+def post_detail(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    return render(request, 'calcapp/post_detail.html', {'post': post})
 
 
 def post_list(request):
     posts = Post.objects.all()
     return render(request, 'calcapp/post_list.html', {'posts': posts})
-
-
-def image_show(request):
-    fig = plt.figure()
-    x = np.arange(-4, 4, 0.1)
-    y = np.arange(-32, 32, 0.8)
-    plt.plot(x, top.f)
-    plt.plot(x, XAxis(0, 0, x))
-    plt.plot(YAxis(0, 0, x), y)
-    plt.savefig("plot.png")
-    figHtml = mpld3.fig_to_html(fig=fig)
-    result = {'figure': figHtml}
-    return render(request,"calcapp/image_show.html", result)

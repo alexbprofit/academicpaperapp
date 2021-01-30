@@ -1,18 +1,31 @@
-<html>
-    <head>
-        <title>Django Girls blog</title>
-    </head>
-    <body>
-   <div>
-    <h3><a href="/">Калькулятор нелінійних рівнянь</a></h3>
-</div>
+{% extends 'calcapp/base.html' %}
+{% load staticfiles %}
 
-{% for post in posts %}
-    <div>
-        <p>root 1: {{ post.left }}</p>
-        <p>root 2: {{ post.right }}</p>
-        <img src="/static/img/plot.png">
-    </div>
-{% endfor %}
-    </body>
-</html>
+
+{% block content %}
+    {% for post in posts %}
+        <div class="post">
+            <h3><a href="{% url 'post_detail' pk=post.pk %}">{{post}}</a></h3>
+
+            <div class="text">
+                {{ post.param1 }}
+            </div>
+
+            <div class="text">
+                {{ post.param2 }}
+            </div>
+
+            <div class="text">
+                {{ post.param3 }}
+            </div>
+
+            <div class="text">
+                {{ post.epsilon }}
+            </div>
+
+            <div class="text">
+                {{ post.nums}}
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}
