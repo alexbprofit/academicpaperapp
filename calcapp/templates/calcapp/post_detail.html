@@ -1,15 +1,17 @@
 {% extends 'calcapp/base.html' %}
+{% load static %}
 {% block content %}
     <div class="post">
-        {% if post.param1 %}
-            <div class="date">
-                {{ post.param1 }}
-                {{ post.param2 }}
-                {{ post.param3 }}
-            </div>
-        {% endif %}
-            <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
-        <h3>{{ post.string}}</h3>
-        <p>{{ post.nums }}</p>
+        <div class="date">
+            <p> {{ post }}</p>
+        </div>
+        <div class="date">
+            <p>{{ result1 }}</p>
+        </div>
+          <div class="date">
+            <p>{{ result2 }}</p>
+        </div>
+        <img src="{% static 'img/plot.png' %}">
+        <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}"><span class="glyphicon glyphicon-pencil"></span></a>
     </div>
 {% endblock %}

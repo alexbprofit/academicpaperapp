@@ -1,5 +1,5 @@
 import matplotlib
-matplotlib.use("agg")
+matplotlib.use("template")
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import numpy as np
@@ -283,11 +283,10 @@ def main(f, a, b, c, num,eps):
         testroot2 = steffencenMethod(right[0], right[1], eps, a, b, c)
     x = np.arange(-4, 4, 0.1)
     y = np.arange(-32, 32, 0.8)
-    fig = Figure()
     plt.plot(x, f(a, b, c, x))
     plt.plot(x, XAxis(0, 0, x))
     plt.plot(YAxis(0, 0, x), y)
-    fig.savefig("static/img/plot.png")
+    plt.savefig("static/img/plot.png")
     print(testroot1)
     print(testroot2)
     return [testroot1, testroot2]
@@ -312,5 +311,6 @@ if __name__ == '__main__':
     num = int(input("Введіть номер методу: "))
     params = init()
     details = printfunc(params[0], params[1], params[2])
+    eps = float(input("Точність: "))
     print("Рівняння: y = {}".format(details))
-    main(f, params[0], params[1], params[2], num)
+    main(f, params[0], params[1], params[2], num, eps)

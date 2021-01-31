@@ -14,9 +14,7 @@ class Post(models.Model):
         self.save()
 
     def __str__(self):
-        self.left, self.right = top.main(top.f, self.param1, self.param2, self.param3, self
-                                         .nums, self.epsilon)
-        return "y = {}x^2 + {}x + {} \n {} \n {}".format(self.param1, self.param2, self.param3, self.left, self.right)
+        return "y = {}x^2 + {}x + {}".format(self.param1, self.param2, self.param3)
 
 
 class Images(models.Model):
