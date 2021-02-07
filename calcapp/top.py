@@ -1,4 +1,5 @@
 import matplotlib
+
 matplotlib.use("template")
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -7,61 +8,71 @@ import math
 import sys
 
 
-def init():
+def init(n):
     params = []
-    n = 3
-    for i in range(n):
+    for i in range(n + 1):
         x = float(input("{} коефіцієент рівняння: ").format(i + 1))
         params.append(x)
     return params
 
 
-def f(a, b, c, x):
-    return a * x * x + b * x + c
+def f(param, x):
+    y = 0
+    for i in range(len(param)):
+        y = param[i] * math.pow(x, i) + y
+    return y
 
 
-def dx(a, b, c, x):
-    return abs(f(a, b, c, x))
+def dx(param, x):
+    return abs(f(param, x))
 
 
-def df(a, b, x):
-    if 2 * a * x + b != 0:
-        return 2 * a * x + b
-    else:
-        return x
+def df(param, x):
+    y = 0
+    for i in range(1, len(param), 1):
+        y = y + (i * param[i] * math.pow(x, i))
+    return y
 
 
-def ddf(a):
-    return 2 * a
+def ddf(param, x):
+    y = 0
+    for i in range(2, len(param), 1):
+        y = y + (i * (i - 1) * param[i] * math.pow(x, i))
+    return y
 
 
-def decomp(a, b, c, p, q, eps):
+def decomp(param, p, q, eps):
     intervals = []
     i = p
     t = 10.0 * eps
     while i < q:
-        if f(a, b, c, i) * f(a, b, c, i + t) < 0:
+        if f(param, i) * f(param, i + t) < 0:
             t = t / 10
             i = i + t
         else:
             i = i + t
             if t < eps:
                 intervals.append([i - 3 * t, i + 3 * t])
+                if len(intervals) == 2:
+                    break
                 t = 10 * eps
     return intervals
 
 
-def printfunc(a, b, c):
-    return "{}x^2 + {}x + {}".format(a, b, c)
+def printfunc(param):
+    string = ''
+    for i in range(len(param)):
+        string = string + "+ {}x^{}".format(param[i], i)
+    return string
 
 
 # Виконана перевірка
 
-def newtonRaphson(l, r, eps, a, b, c):
+def newtonRaphson(l, r, eps, param):
     condition = True
     x0 = (l + r) / 2.0
     while condition:
-        x1 = x0 - f(a, b, c, x0) / df(a, b, x0)
+        x1 = x0 - f(param, x0) / df(param, x0)
         if abs(x1 - x0) < eps:
             condition = False
         else:
@@ -73,16 +84,15 @@ def samesign(a, b):
     return a * b > 0
 
 
-def Bisect(fx, l, r, eps, a, b, c):
-    midpoint = 0
+def Bisect(fx, l, r, eps, param):
     step = 0
     while True:
         midpoint = (l + r) / 2.0
-        if samesign(fx(a, b, c, l), fx(a, b, c, midpoint)):
+        if samesign(fx(param, l), fx(param, midpoint)):
             l = midpoint
         else:
             r = midpoint
-        if dx(a, b, c, midpoint) < eps:
+        if dx(param, midpoint) < eps:
             break
         step = step + 1
     return midpoint
@@ -90,18 +100,18 @@ def Bisect(fx, l, r, eps, a, b, c):
 
 ########################
 # проблемнв зона
-def simplefleft(a, c, x):
-    return a * x * x + c
+def simplefleft(param, x):
+    return f(param, x) - param[1] * x
 
 
-def simpleIterationMethod(l, r, eps, a, b, c):
+def simpleIterationMethod(l, eps, param):
     condition = True
     x0 = l
     while condition:
-        if b != 0:
-            x1 = simplefleft(a, c, x0) / -b
+        if param[1] != 0:
+            x1 = simplefleft(param, x0) / -param[1]
         else:
-            x1 = simplefleft(a, c, x0)
+            x1 = simplefleft(param, x0)
         if abs(x1 - x0) < eps:
             condition = False
         x0 = x1
@@ -109,14 +119,14 @@ def simpleIterationMethod(l, r, eps, a, b, c):
 
 
 ########################
-def secantMethod(l, r, eps, a, b, c):
+def secantMethod(l, r, eps, param):
     x1 = (l + r) / 2.0
-    x2 = f(a, b, c, x1)
+    x2 = f(param, x1)
     iterate = 0
     maxIteration = 100
     cond = True
     while cond and iterate < maxIteration:
-        y1 = x2 - ((f(a, b, c, x2) * (x2 - x1)) / ((f(a, b, c, x2) - f(a, b, c, x1))))
+        y1 = x2 - ((f(param, x2) * (x2 - x1)) / (f(param, x2) - f(param, x1)))
         if abs(y1 - x2) < eps:
             cond = False
         x1 = x2
@@ -125,13 +135,13 @@ def secantMethod(l, r, eps, a, b, c):
     return x1
 
 
-def steffencenMethod(l, r, eps, a, b, c):
+def steffencenMethod(l, r, eps, param):
     iterate = 0
     maxIteration = 100
     cond = True
     x0 = (l + r) / 2.0
     while cond and iterate < maxIteration:
-        x1 = x0 - ((f(a, b, c, x0) ** 2) / (f(a, b, c, x0 + f(a, b, c, x0)) - f(a, b, c, x0)))
+        x1 = x0 - ((f(param, x0) ** 2) / (f(param, x0 + f(param, x0)) - f(param, x0)))
         if abs(x0 - x1) < eps:
             cond = False
         x0 = x1
@@ -139,14 +149,14 @@ def steffencenMethod(l, r, eps, a, b, c):
     return x1
 
 
-def easeNewtomRaphsonMethod(l, r, eps, a, b, c):
+def easeNewtomRaphsonMethod(l, r, eps, param):
     iterate = 0
     maxIteration = 100
     x0 = (l + r) / 2.0
     j = x0
     cond = True
     while cond and iterate < maxIteration:
-        x1 = x0 - (f(a, b, c, x0) / df(a, b, j))
+        x1 = x0 - (f(param, x0) / df(param, j))
         if abs(x1 - x0) < eps:
             cond = False
         x0 = x1
@@ -154,11 +164,11 @@ def easeNewtomRaphsonMethod(l, r, eps, a, b, c):
     return x1
 
 
-def modifiedNewtonRaphsonMethod(l, r, eps, a, b, c, m=1):
+def modifiedNewtonRaphsonMethod(l, r, eps, param, m=1):
     condition = True
     x0 = (l + r) / 2.0
     while condition:
-        x1 = x0 - m * (f(a, b, c, x0) / df(a, b, x0))
+        x1 = x0 - m * (f(param, x0) / df(param, x0))
         if abs(x1 - x0) < eps:
             condition = False
         else:
@@ -166,13 +176,13 @@ def modifiedNewtonRaphsonMethod(l, r, eps, a, b, c, m=1):
     return x1
 
 
-def HeiliMethod(l, r, eps, a, b, c):
+def HeiliMethod(l, r, eps, param):
     iterate = 0
     maxIteration = 100
     cond = True
     x0 = (l + r) / 2.0
     while cond and iterate < maxIteration:
-        x1 = x0 - ((f(a, b, c, x0) * df(a, b, x0)) / (math.pow(df(a, b, x0), 2) - (f(a, b, c, x0) * ddf(a))))
+        x1 = x0 - ((f(param, x0) * df(param, x0)) / (math.pow(df(param, x0), 2) - (f(param, x0) * ddf(param, x0))))
         if abs(x1 - x0) < eps:
             cond = False
         x0 = x1
@@ -180,14 +190,14 @@ def HeiliMethod(l, r, eps, a, b, c):
     return x1
 
 
-def extendNewtonMethod(l, r, eps, a, b, c):
+def extendNewtonMethod(l, r, eps, param):
     iterate = 0
     maxIteration = 100
     cond = True
     x0 = (l + r) / 2.0
     while cond and iterate < maxIteration:
-        x1 = newtonRaphson(l,r, eps, a, b, c) - (
-                    (ddf(a) * math.pow(f(a, b, c, x0), 2)) / (2 * math.pow(df(a, b, x0), 2)))
+        x1 = newtonRaphson(l, r, eps, param) - (
+                (ddf(param, x0) * math.pow(f(param, x0), 2)) / (2 * math.pow(df(param, x0), 2)))
         if abs(x1 - x0) < eps:
             cond = False
         x0 = x1
@@ -195,14 +205,14 @@ def extendNewtonMethod(l, r, eps, a, b, c):
     return x1
 
 
-def interpolationMethod(l, r, eps, a, b, c):
+def interpolationMethod(l, r, eps, param):
     x1 = (l + r) / 2.0
-    x2 = f(a, b, c, x1)
+    x2 = f(param, x1)
     iterate = 0
     maxIteration = 100
     cond = True
     while cond and iterate < maxIteration:
-        y1 = x2 - ((f(a, b, c, x2) * (x2 - x1)) / (f(a, b, c, x2) - f(a, b, c, x1)))
+        y1 = x2 - ((f(param, x2) * (x2 - x1)) / (f(param, x2) - f(param, x1)))
         if abs(y1 - x2) < eps:
             cond = False
         x1 = x2
@@ -211,7 +221,7 @@ def interpolationMethod(l, r, eps, a, b, c):
     return x1
 
 
-def subNewtonMethod(l, r, eps, a, b, c):
+def subNewtonMethod(l, r, eps, param):
     h0 = 1
     iterate = 0
     maxIteration = 100
@@ -219,7 +229,7 @@ def subNewtonMethod(l, r, eps, a, b, c):
     x0 = (l + r) / 2.0
     while cond and iterate < maxIteration:
         hk = 0.5 * h0
-        x1 = x0 - ((hk * f(a, b, c, x0)) / (f(a, b, c, x0 + hk) - f(a, b, c, x0)))
+        x1 = x0 - ((hk * f(param, x0)) / (f(param, x0 + hk) - f(param, x0)))
         if abs(x1 - x0) < eps:
             cond = False
         x0 = x1
@@ -235,63 +245,77 @@ def YAxis(a, b, x):
     return b * x + a
 
 
-def main(f, a, b, c, num,eps):
-    left, right = decomp(a, b, c, -100, 100, eps)
+class NoRootsFoundException:
+    BaseException(Exception)
+
+
+def main(f, param, num, eps):
+    testroots = []
+    intervals = decomp(param, -100, 100, eps)
     if num == 2:
         print("Метод половинного поділу")
-        testroot1 = Bisect(f, left[0], left[1], eps, a, b, c)
-        testroot2 = Bisect(f, right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = Bisect(f, intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 1:
         print("Метод Ньютона")
-        testroot1 = newtonRaphson(left[0], left[1], eps, a, b, c)
-        testroot2 = newtonRaphson(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = newtonRaphson(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 3:
         print("Метод простої ітерації")
-        testroot1 = simpleIterationMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = simpleIterationMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = simpleIterationMethod(intervals[i][0], eps, param)
+            testroots.append(testroot)
     elif num == 4:
         print("Метод січних.")
-        testroot1 = secantMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = secantMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = secantMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 6:
         print("Метод Ньютона(спрощений).")
-        testroot1 = easeNewtomRaphsonMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = easeNewtomRaphsonMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = easeNewtomRaphsonMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 7:
         print("Метод Ньютона(модифікований).")
-        testroot1 = modifiedNewtonRaphsonMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = modifiedNewtonRaphsonMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = modifiedNewtonRaphsonMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 8:
         print("Метод Хейлі.")
-        testroot1 = HeiliMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = HeiliMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = HeiliMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 9:
         print("Метод Ньютона(розширений).")
-        testroot1 = extendNewtonMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = extendNewtonMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = extendNewtonMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 10:
         print("Метод хорд.")
-        testroot1 = interpolationMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = interpolationMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = interpolationMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 11:
         print("Метод Ньютона(різницевий).")
-        testroot1 = subNewtonMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = subNewtonMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = subNewtonMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     elif num == 5:
         print("Метод Стеффенсена.")
-        testroot1 = steffencenMethod(left[0], left[1], eps, a, b, c)
-        testroot2 = steffencenMethod(right[0], right[1], eps, a, b, c)
+        for i in range(len(intervals)):
+            testroot = steffencenMethod(intervals[i][0], intervals[i][1], eps, param)
+            testroots.append(testroot)
     x = np.arange(-4, 4, 0.1)
     y = np.arange(-32, 32, 0.8)
-    plt.plot(x, f(a, b, c, x))
+    plt.plot(x, f(param, x))
     plt.plot(x, XAxis(0, 0, x))
     plt.plot(YAxis(0, 0, x), y)
     plt.savefig("static/img/plot.png")
-    print(testroot1)
-    print(testroot2)
-    return [testroot1, testroot2]
-    # print(left)
-    # print(right)
+    for i in range(len(testroots)):
+        print(testroots[i])
+    return testroots
 
 
 if __name__ == '__main__':
@@ -309,8 +333,9 @@ if __name__ == '__main__':
     print("11: Метод Ньютона(різницевий). ")
     print("#########################")
     num = int(input("Введіть номер методу: "))
-    params = init()
-    details = printfunc(params[0], params[1], params[2])
+    n = int(input("Степінь рівняння: "))
+    params = init(n)
+    details = printfunc(params)
     eps = float(input("Точність: "))
     print("Рівняння: y = {}".format(details))
-    main(f, params[0], params[1], params[2], num, eps)
+    main(f, params, num, eps)
